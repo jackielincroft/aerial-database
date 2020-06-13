@@ -1,7 +1,47 @@
-create schema aerial;
+-- create schema aerial;
 use aerial;
 
 drop table if exists move;
+drop table if exists apparatus;
+drop table if exists move_type;
+drop table if exists alternate_name;
+
+
+create table apparatus (
+	apparatus_id int primary key auto_increment,
+    name varchar(50) not null unique,
+    spins tinyint default false
+);
+
+insert into apparatus values 
+	(1, "silks", true),
+	(2, "trapeze", false),
+    (4, "hammock", true),
+    (5, "cloud swing", false),
+    (6, "lyra", true),
+    (8, "pole", true),
+    (9, "chinese pole", false),
+    (10, "aerial scaffold", false),
+    (11, "flying trapeze", false);
+
+
+create table move_type (
+	move_type_id int primary key auto_increment,
+    name varchar(50) not null unique
+);
+
+insert into move_type values
+	(1, "split"),
+    (2, "pose"),
+    (3, "drop"),
+    (4, "open drop"),
+    (5, "beat"),
+    (6, "spin"),
+    (8, "climb"),
+    (9, "roll"),
+    (10, "hang");
+    
+    
 create table move (
 	move_id int primary key auto_increment,
     name varchar(50) not null,
@@ -81,49 +121,29 @@ insert into move values
     (110, "sitting", "beginner", 2, 2, 0, 0, 0, null),
     (111, "pop off", "intermediate", 2, 2, 0, 1, 1, 110),
     (112, "ankle hang", "beginner", 2, 10, 0, 0, 0, null),
-    (113, "toe hang", "ihntermediate", 2, 10, 0, 0, 0, null),
+    (113, "toe hang", "intermediate", 2, 10, 0, 0, 0, null),
     (114, "heel hang", "intermediate", 2, 10, 0, 0, 0, null),
     (115, "back balance", "beginner", 2, 2, 0, 0, 0, null),
     (116, "straddleback", "beginner", 2, 2, 1, 0, 0, null),
-    (117, "gazelle", "beginner", 2, 10, 1, 0, 0, 110),
-
-
-drop table if exists apparatus;
-create table apparatus (
-	apparatus_id int primary key auto_increment,
-    name varchar(50) not null unique,
-    spins tinyint default false
+    (117, "gazelle", "beginner", 2, 2, 1, 0, 0, 110);
+    
+    
+create table alternate_name (
+	alternate_name_id int primary key auto_increment,
+    move_id int not null,
+    name varchar(50) not null,
+    region varchar(100),
+    constraint alternate_name_fk_move foreign key (move_id) references move (move_id)
 );
 
-truncate apparatus;
-insert into apparatus values 
-	(1, "silks", true),
-	(2, "trapeze", false),
-    (4, "hammock", true),
-    (5, "cloud swing", false),
-    (6, "lyra", true),
-    (8, "pole", true),
-    (9, "chinese pole", false),
-    (10, "aerial scaffold", false),
-    (11, "flying trapeze");
-
-
-drop table if exists move_type;
-create table move_type (
-	move_type_id int primary key auto_increment,
-    name varchar(50) not null unique
-);
-
-truncate move_type;
-insert into move_type values
-	(1, "split"),
-    (2, "pose"),
-    (3, "drop"),
-    (4, "open drop"),
-    (5, "beat"),
-    (6, "spin"),
-    (8, "climb"),
-    (9, "roll"),
-    (10, "hang");
-
-
+insert into alternate_name values
+	(1, 1, "basic climb", "northeastern usa"),
+    (2, 10, "hip lock", null),
+    (3, 15, "hip key seat", "west coast usa"),
+    (4, 19, "straddleback", null),
+    (5, 20, "sexy kitty", "west coast usa"),
+    (6, 26, "bell beats", "east coast usa"),
+    (7, 31, "reverse double star drop", null),
+    (8, 39, "half monty", null),
+    (9, 40, "double ankle hang", null),
+    (10, 48, "tourniquet hammock", "northeastern usa");
