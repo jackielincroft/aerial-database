@@ -1,11 +1,13 @@
 -- create schema aerial;
 use aerial;
 
-drop table if exists move;
-drop table if exists apparatus;
+drop table if exists move_synonym;
 drop table if exists move_type;
-drop table if exists alternate_name;
-
+drop table if exists move;
+drop table if exists apparatus_synonym;
+drop table if exists user_apparatus;
+drop table if exists user;
+drop table if exists apparatus;
 
 create table apparatus (
 	apparatus_id int primary key auto_increment,
@@ -22,7 +24,23 @@ insert into apparatus values
     (8, "pole", true),
     (9, "chinese pole", false),
     (10, "aerial scaffold", false),
-    (11, "flying trapeze", false);
+    (11, "flying trapeze", false),
+    (12, "rope", false);
+    
+create table apparatus_synonym (
+	apparatus_synonym_id int primary key auto_increment,
+    name varchar(50) not null,
+    region varchar(50),
+    apparatus_id int not null,
+    constraint apparatus_synonym_fk_apparatus foreign key (apparatus_id) references apparatus (apparatus_id)
+);
+
+insert into apparatus_synonym values 
+	(1, "fabric", null, 1),
+    (2, "tissue", null, 1),
+    (3, "hoop", null, 6),
+    (4, "fabric", null, 1),
+    (5, "corde lisse", null, 12);
 
 
 create table move_type (
@@ -37,9 +55,36 @@ insert into move_type values
     (4, "open drop"),
     (5, "beat"),
     (6, "spin"),
-    (8, "climb"),
+    (8, "climb/mount"),
     (9, "roll"),
     (10, "hang");
+
+create table user (
+	user_id int primary key auto_increment,
+    email varchar(50) not null unique,
+    password varchar(50) not null,
+    username varchar(50) not null,
+    dob date,
+    level enum("beginner", "intermediate", "advanced") default "beginner"
+);
+
+insert into user values 
+	(1, "user@email.com", "secret", "test_user", '1995-03-12', "intermediate"),
+    (2, "user2@email.com", "supersecret", "test_user2", '2001-04-05', "beginner");
+
+
+create table user_apparatus (
+	user_id int not null,
+    apparatus_id int not null,
+    primary key (user_id, apparatus_id),
+    is_primary_apparatus tinyint default 0,
+    started_training date
+);
+
+insert into user_apparatus values
+	(1, 2, true, null),
+    (2, 1, true, '2016-08-01'),
+    (3, 6, false, '2018-04-01');
     
     
 create table move (
@@ -52,12 +97,14 @@ create table move (
     is_drop tinyint default false,
     is_dynamic tinyint default true,
     builds_off int,
+    added_by int default null,
     constraint move_fk_apparatus foreign key (apparatus_id) references apparatus (apparatus_id),
     constraint move_fk_move_type foreign key (move_type_id) references move_type (move_type_id),
-    constraint move_fk_move foreign key (builds_off) references move (move_id)
+    constraint move_fk_move foreign key (builds_off) references move (move_id),
+    constraint move_fk_user foreign key (added_by) references user (user_id)
 );
 
-insert into move values
+insert into move (move_id, name, difficulty_level, apparatus_id, move_type_id, uses_inversion, is_drop, is_dynamic, builds_off) values
 	(1, "french climb", "beginner", 1, 8, 0, 0, 1, null),
     (2, "russian climb", "beginner", 1, 8, 0, 0, 1, null),
     (3, "single footlock", "beginner", 1, 2, 0, 0, 0, null),
@@ -105,9 +152,10 @@ insert into move values
     (45, "front balance", "intermediate", 1, 2, 0, 0, 0, null),
     (46, "back balance", "intermediate", 1, 2, 1, 0, 0, null),
     (47, "seated slack drop", "beginner", 1, 3, 1, 1, 1, 35),
-    (48, "tourniquet swing seat", "beginner", 1, 2, 0, 0, 0, 9);
+    (48, "tourniquet swing seat", "beginner", 1, 2, 0, 0, 0, 9),
+    (49, "wheeldown", "intermediate", 1, 9, 0, 0, 1, 30);
 
-insert into move values
+insert into move (move_id, name, difficulty_level, apparatus_id, move_type_id, uses_inversion, is_drop, is_dynamic, builds_off) values
 	(100, "knee hang", "beginner", 2, 10, 1, 0, 0, null),
     (101, "single knee hang", "intermediate", 2, 10, 1, 0, 0, 100),
     (102, "knee beats", "beginner", 2, 5, 1, 0, 1, null),
@@ -126,6 +174,21 @@ insert into move values
     (115, "back balance", "beginner", 2, 2, 0, 0, 0, null),
     (116, "straddleback", "beginner", 2, 2, 1, 0, 0, null),
     (117, "gazelle", "beginner", 2, 2, 1, 0, 0, 110);
+    
+insert into move (move_id, name, difficulty_level, apparatus_id, move_type_id, uses_inversion, is_drop, is_dynamic, builds_off) values
+	(500, "man in the moon", "beginner", 6, 2, false, false, false, null),
+    (501, "straddleback", "beginner", 6, 2, true, false, false, null),
+    (502, "side mount", "beginner", 6, 8, false, false, true, null),
+    (503, "gazelle", "beginner", 6, 2, false, false, false, null),
+    (504, "mermaid", "beginner", 6, 2, false, false, false, null),
+    (505, "mermaid split", "beginner", 6, 1, false, false, false, 504),
+    (506, "pullover", "beginner", 6, 8, true, false, true, null),
+    (507, "front balance", "beginner", 6, 2, true, false, false, 506),
+    (508, "hip circles", "advanced", 6, 9, true, false, true, 507),
+    (509, "backwards hip circles", "advanced", 6, 9, true, false, true, 507),
+    (510, "one-leg seat", "beginner", 6, 2, false, false, false, null),
+    (511, "windmill", "intermediate", 6, 9, true, false, true, 510),
+    (512, "monkey roll", "beginner", 6, 9, true, false, true, null);
     
     
 create table move_synonym (
@@ -146,4 +209,7 @@ insert into move_synonym values
     (7, 31, "reverse double star drop", null),
     (8, 39, "half monty", null),
     (9, 40, "double ankle hang", null),
-    (10, 48, "tourniquet hammock", "northeastern usa");
+    (10, 48, "tourniquet hammock", "northeastern usa"),
+    (11, 49, "windmill", "east coast usa"),
+    (12, 511, "mill circle", "east coast usa"),
+    (13, 510, "horse", "northeastern usa")
