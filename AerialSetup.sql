@@ -128,15 +128,15 @@ insert into move values
     (117, "gazelle", "beginner", 2, 2, 1, 0, 0, 110);
     
     
-create table alternate_name (
-	alternate_name_id int primary key auto_increment,
+create table move_synonym (
+	move_synonym_id int primary key auto_increment,
     move_id int not null,
     name varchar(50) not null,
     region varchar(100),
     constraint alternate_name_fk_move foreign key (move_id) references move (move_id)
 );
 
-insert into alternate_name values
+insert into move_synonym values
 	(1, 1, "basic climb", "northeastern usa"),
     (2, 10, "hip lock", null),
     (3, 15, "hip key seat", "west coast usa"),
