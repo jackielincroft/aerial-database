@@ -36,4 +36,22 @@ end if;
 end //
 delimiter ;
 
--- 
+-- Get all the attributes (stored in dictionary tables/foreign keys) for a single move.
+delimiter //
+create procedure get_move_details(apparatusName varchar(50), moveName varchar(50))
+begin
+select m.move_id, 
+	m.name, 
+    m.difficulty_level, 
+    apparatusName, 
+    mt.name, 
+    uses_inversion, 
+    is_dynamic, 
+    m2.name as 'builds_off_move', 
+    u.username as 'added_by_user'
+from move m join move_type mt using (move_type_id)
+	join user u on (m.added_by = u.user_id)
+    join apparatus a on (m.apparatus_id = a.apparatus_id)
+where a.name = apparatusName and m.name like moveName;
+end //
+delimiter ;

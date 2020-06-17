@@ -23,6 +23,10 @@ from move m join move_synonym ms using (move_id)
 where ms.region like "%east%usa";
 
 
+-- I was totally inspired during open gym the other day, and created a new move to add to the database!
+
+
+
 -- I'm trying to build a silks routine.  I'd like to start with same-side straddle climb, and pick a sequence of 3 or 4 moves.
 -- Show me moves that build off of a same-side straddle climb.
 call get_next_moves("silks", "same-side straddle climb");

@@ -83,21 +83,33 @@ public class MySQLAerialAPI implements AerialAPI {
     }
   }
 
-  private List<Move> fetchMoves(String sql) {
-    List<Move> tweets = new ArrayList<>();
+  private List<Move> getMoves(String sql) {
+
+    List<Move> moves = new ArrayList<Move>();
     try {
-      Statement stnt = con.createStatement();
-      ResultSet rs = stnt.executeQuery(sql);
+      Statement stmt = con.createStatement();
+      ResultSet rs = stmt.executeQuery(sql);
       while (rs.next()) {
-        int TID = rs.getInt("tweet_id");
-        int UID = rs.getInt("user_id");
-        Date ts = rs.getTimestamp("timestamp");
+        int MID = rs.getInt("move_id");
+        String name = rs.getString("name");
+        String dl = rs.getString("difficulty_level");
+        int AID = rs.getInt("apparatus_id");
+        int MTID = rs.getInt("move_type_id");
+        boolean ui = rs.getBoolean("uses_inversion");
+        boolean id = rs.getBoolean("is_dynamic");
+        int bo = rs.getInt("builds_off");
+        int ab = rs.getInt("added_by");
 
+        Move t = new Move(MID, name, DifficultyLevel.valueOf(dl), AID, MTID, ui, id, bo, ab);
+        moves.add(t);
       }
-    } catch (SQLException sqe) {
-      System.err.println(sqe.getMessage());
+      rs.close();
+      stmt.close();
+      return moves;
+    } catch (SQLException e) {
+      System.err.println(e.getMessage());
+      e.printStackTrace();
+      return null;
     }
-
-    return tweets;
   }
 }
